@@ -1,0 +1,12 @@
+beltCountMax: 19
+beltWeightMax: 42
+truckCapacity: 90
+worker1:
+  brickMass: 1
+  interval: 2000
+worker2:
+  brickMass: 2
+  interval: 2000
+worker3:
+  brickMass: 3
+  interval: 2000

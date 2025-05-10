@@ -1,0 +1,72 @@
+.custom-toast-label-p1 {
+    -fx-background-color: rgba(60,60,60,0.95);
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 10;
+    -fx-font-size: 18px;
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "sans-serif";
+    -fx-pref-width: 110px;     /* maksymalna szerokość */
+    -fx-pref-height: 30px;    /* preferowana wysokość */
+    -fx-alignment: center;    /* wyśrodkowanie tekstu */
+}
+.custom-toast-label-p2 {
+    -fx-background-color: rgba(60,60,60,0.95);
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 10;
+    -fx-font-size: 18px;
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "sans-serif";
+    -fx-pref-width: 150px;     /* maksymalna szerokość */
+    -fx-pref-height: 30px;    /* preferowana wysokość */
+    -fx-alignment: center;    /* wyśrodkowanie tekstu */
+}
+.custom-toast-label-p3 {
+    -fx-background-color: rgba(60,60,60,0.95);
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 10;
+    -fx-font-size: 18px;
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "sans-serif";
+    -fx-pref-width: 170px;     /* maksymalna szerokość */
+    -fx-pref-height: 30px;    /* preferowana wysokość */
+    -fx-alignment: center;    /* wyśrodkowanie tekstu */
+}
+.truck-label-box {
+    /*-fx-background-color: white;*/
+    /*-fx-background-radius: 30;   !* zaokrąglone rogi *!*/
+    -fx-padding: 20 40 20 40;    /* odstępy wewnątrz */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10,0,0,2);
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "sans-serif";
+    -fx-pref-height: 30px;    /* preferowana wysokość */
+    -fx-alignment: center;    /* wyśrodkowanie tekstu */
+    -fx-max-width: 400px;
+}
+
+.truck-label-text {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+.title-label {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2a4d69;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, #b2b2b2, 3, 0, 1, 1);
+    -fx-padding: 3 0 5 0;
+}
+
+.info-box {
+    -fx-font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "sans-serif";
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-background-color: rgba(255,255,255,0.7);
+    -fx-background-radius: 15;   /* zaokrąglenie rogów */
+    -fx-border-color: #333;
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, #888, 10, 0.5, 0, 0); /* cień */
+    -fx-alignment: center;
+}
+
