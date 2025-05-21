@@ -13,31 +13,21 @@ public class WorkersGui {
     private Stage stage;
     private final ConveyorBelt belt = AppMain.belt;
 
-    // Track last notification timestamps to prevent spam
     private long lastP1NotificationTime = 0;
     private long lastP2NotificationTime = 0;
     private long lastP3NotificationTime = 0;
 
-    // Minimum time between notifications (milliseconds)
     private static final long NOTIFICATION_COOLDOWN = 500;
 
     public WorkersGui(Stage stage) {
         this.stage = stage;
     }
 
-    /**
-     * Shows a notification for a worker when they add bricks to the conveyor belt
-     *
-     * @param status Worker's status (true when actively adding bricks)
-     * @param workerName Name of the worker (P1, P2, P3)
-     */
     public void showNotification(boolean status, String workerName) {
-        // Skip if status is false - we only show notifications on TRUE events
         if (!status) {
             return;
         }
 
-        // Check if the stage is valid - this must run on UI thread
         Platform.runLater(() -> {
             try {
                 // Stop if stage is not ready yet
@@ -45,8 +35,6 @@ public class WorkersGui {
                     System.err.println("Stage not ready for notifications");
                     return;
                 }
-
-                // Check if time cooldown has passed to prevent notification spam
                 long currentTime = System.currentTimeMillis();
                 boolean canShowNotification = false;
 
@@ -75,7 +63,6 @@ public class WorkersGui {
                     return;
                 }
 
-                // Prepare notification message and position based on worker
                 String bricks;
                 String message;
                 int x = 0, y = 0;
@@ -102,8 +89,6 @@ public class WorkersGui {
                         x = 0; y = 0;
                 }
 
-
-                // Show the notification directly, bypass the full check
                 showDirectNotification(message, x, y, workerName);
 
             } catch (Exception e) {
@@ -112,33 +97,20 @@ public class WorkersGui {
         });
     }
 
-    /**
-     * Directly shows a notification without additional checks
-     *
-     * @param message Message to display
-     * @param x X position
-     * @param y Y position
-     */
+
     private void showDirectNotification(String message, int x, int y, String workerName) {
         try {
-            // Add a debug toast to scene first - this is important to make it more reliable
             directToast(message, x, y, workerName);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Shows a toast notification directly embedded in the stage
-     * This bypasses the CustomToast class that might be causing issues
-     */
     private void directToast(String message, double x, double y, String workerName) {
         try {
             if (stage == null || stage.getScene() == null) {
                 return;
             }
-
-            // Use CustomToast with explicit error handling
             CustomToast.show(stage, message, x, y, 1500, workerName);
 
         } catch (Exception e) {
@@ -147,9 +119,6 @@ public class WorkersGui {
         }
     }
 
-    /**
-     * Updates the stage reference
-     */
     public void updateStage(Stage stage) {
         this.stage = stage;
 

@@ -61,21 +61,11 @@ public class CustomToast {
 
             // Create the toast label
             Label toastLabel = new Label(message);
-            if ("P1".equals(workerName)) {
-                toastLabel.getStyleClass().add("custom-toast-label-p1");
-            } else if ("P2".equals(workerName)) {
-                toastLabel.getStyleClass().add("custom-toast-label-p2");
-            } else if ("P3".equals(workerName)) {
-                toastLabel.getStyleClass().add("custom-toast-label-p3");
-            } else {
-                toastLabel.getStyleClass().add("custom-toast-label");
-            }
-
-
-            // Add default styles if no CSS is applied
-            if (toastLabel.getStyleClass().isEmpty()) {
-                toastLabel.setStyle("-fx-background-color: rgba(0,0,0,0.7); -fx-text-fill: white; " +
-                        "-fx-padding: 10px; -fx-background-radius: 5px;");
+            switch (workerName) {
+                case "P1" -> toastLabel.getStyleClass().add("custom-toast-label-p1");
+                case "P2" -> toastLabel.getStyleClass().add("custom-toast-label-p2");
+                case "P3" -> toastLabel.getStyleClass().add("custom-toast-label-p3");
+                case null, default -> toastLabel.getStyleClass().add("custom-toast-label");
             }
 
             // Positioning
@@ -104,9 +94,7 @@ public class CustomToast {
             fadeOut.setOnFinished(e -> {
                 // Make sure we're removing the label on the JavaFX thread
                 Platform.runLater(() -> {
-                    if (rootPane.getChildren().contains(toastLabel)) {
-                        rootPane.getChildren().remove(toastLabel);
-                    }
+                    rootPane.getChildren().remove(toastLabel);
                 });
             });
 
@@ -119,9 +107,6 @@ public class CustomToast {
         }
     }
 
-    /**
-     * Creates an overlay StackPane for toasts if the root is not a Pane
-     */
     private static StackPane createToastOverlay(Stage owner) {
         StackPane overlay = new StackPane();
         overlay.setPrefSize(owner.getWidth(), owner.getHeight());

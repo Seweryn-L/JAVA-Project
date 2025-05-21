@@ -119,9 +119,6 @@ public class Background {
         sequence.play();
     }
 
-    // Usunięte nieużywane metody moveReversedTruck i moveReversedTruckBox,
-    // ponieważ ta funkcjonalność jest teraz zintegrowana z metodami moveTruck i moveTruckBox
-
     private Image loadImage(String path) {
         try {
             return new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());

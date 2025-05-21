@@ -3,51 +3,43 @@ package org.example.model;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import javafx.application.Platform;
-import javafx.beans.Observable;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.BooleanProperty;
 
-/**
- * Klasa ConveyorBelt reprezentuje taśmę produkcyjną, na którą pracownicy dokładają cegły,
- * a ciężarówka je odbiera. Kontroluje zarówno liczbę cegieł, jak i ich łączną masę.
- * Synchronizacja odbywa się za pomocą semaforów oraz własnego locka.
- */
 public class ConveyorBelt {
 
-    // Kolejka przechowująca masy cegieł na taśmie
+    //kolejka ktora przechowuje masy cegiel na tasmie
     private final Queue<Integer> bricks = new LinkedList<>();
 
-    // Semafor ograniczający liczbę cegieł na taśmie
+    //semafory ograniczajace mase i liczbe cegiel na tasmie
     private Semaphore countSemaphore;
-    // Semafor ograniczający łączną masę cegieł na taśmie
     private Semaphore weightSemaphore;
 
-    // Maksymalna liczba cegieł na taśmie
+    //Maksymalne parametry tasmy
     private int countMax;
-    // Maksymalna masa cegieł na taśmie (może się zmieniać dynamicznie)
     private int weightMax;
     private int neweightMax;
-    // Początkowa maksymalna masa (do resetowania)
+    //pomocnicza
     private int weightMax1;
 
-    // Bieżąca masa cegieł na taśmie
+    //biezace wartosci
     private int currentWeight = 0;
-    // Bieżąca liczba cegieł na taśmie
     private int currentCount = 0;
 
-    // Obiekt do synchronizacji komunikacji między wątkami (np. z ciężarówką)
+    //lock do synchronizacji z ciężarówką
     public final Object lock = new Object();
 
-    // Flaga informująca, czy taśma jest pełna (volatile: widoczna między wątkami)
+    //flaga widoczna miedzy watkiami
     private volatile boolean isFull = false;
 
-    // Suma masy cegieł przekazanych do ciężarówki (do obliczeń przy dynamicznej zmianie pojemności)
+    //suma masy cegiel wyslanych na ciezarowke
     private int sendWeight = 0;
     private final IntegerProperty weightMaxProperty = new SimpleIntegerProperty(weightMax);
     private final IntegerProperty countMaxProperty = new SimpleIntegerProperty(countMax);
 
+    //gettery i setter
     public IntegerProperty weightMaxProperty() { return weightMaxProperty; }
     public int getWeightMax() { return weightMaxProperty.get(); }
     public void setWeightMax(int value) { weightMaxProperty.set(value); }
@@ -62,43 +54,33 @@ public class ConveyorBelt {
     public IntegerProperty countMaxProperty() {return countMaxProperty;}
     public int getCountMax() { return countMaxProperty.get(); }
     public void setCountMax(int value) { countMaxProperty.set(value); }
-    // Właściwości JavaFX do powiązania z UI (liczba cegieł i masa)
+
     private final IntegerProperty brickCountProperty = new SimpleIntegerProperty(0);
     private final IntegerProperty brickWeightProperty = new SimpleIntegerProperty(0);
 
-    // Gettery do powiązań z UI
     public IntegerProperty brickCountProperty() { return brickCountProperty; }
     public IntegerProperty brickWeightProperty() { return brickWeightProperty; }
     public boolean getisFull() { return isFull; }
 
-    /**
-     * Konstruktor taśmy.
-     * @param K Maksymalna liczba cegieł.
-     * @param M Maksymalna masa cegieł.
-     */
+
+    //tasma ma dwa parametry
     public ConveyorBelt(int K, int M) {
         this.countMax = K;
         this.weightMax = M;
         this.weightMax1 = M; // zapamiętaj do resetu
-        this.countSemaphore = new Semaphore(K, true); // semafor liczby cegieł (fair)
-        this.weightSemaphore = new Semaphore(M, true); // semafor masy (fair)
+        this.countSemaphore = new Semaphore(K, true); //semafor liczby cegieł (fair)
+        this.weightSemaphore = new Semaphore(M, true); //semafor masy (fair)
     }
 
-    /**
-     * Dodaje cegłę na taśmę produkcyjną.
-     * Synchronizuje się na semaforach oraz na this (dla bezpieczeństwa).
-     * @param mass Masa dodawanej cegły.
-     * @throws InterruptedException jeśli wątek zostanie przerwany.
-     */
     public void addBrick(int mass) throws InterruptedException {
         while (true) {
             synchronized (this) {
-                // Sprawdź, czy jest miejsce na liczbę cegieł i masę
+                //sprawdzam czy jest miejsce dla cegly
                 if (countSemaphore.availablePermits() > 0 && weightSemaphore.availablePermits() >= mass && currentWeight + mass <= weightMax) {
                     countSemaphore.acquire();
                     weightSemaphore.acquire(mass);
 
-                    // Teraz już nikt nie może wejść do tej sekcji zanim nie skończysz
+                    // teraz nikt nie moze wejsc w ta sekcje
                     bricks.add(mass);
                     currentWeight += mass;
                     sendWeight += mass;
@@ -114,26 +96,20 @@ public class ConveyorBelt {
                     System.out.println("Dodano cegle " + currentWeight + "/" + weightMax + " +" + mass + " (" + currentCount + ")");
                     System.out.println("semafor wagi " + weightSemaphore.availablePermits());
                     System.out.println("semafor liczby " + countSemaphore.availablePermits());
-
+                    //jesli juz nie ma wiecej miejsca informuje o tym
                     if (countSemaphore.availablePermits() == 0 || weightSemaphore.availablePermits() == 0) {
                         synchronized (lock) {
                             isFull = true;
                             lock.notifyAll();
                         }
                     }
-                    break; // cegła została dodana, wyjdź z pętli
+                    break; //cegła została dodana, wyjdź z pętli
                 }
             }
-            Thread.sleep(50); // poczekaj i spróbuj ponownie
+            Thread.sleep(50); //jesli sie nie udalo
         }
     }
 
-
-    /**
-     * Metoda blokująca, która czeka aż taśma się zapełni (przez liczbę lub masę).
-     * Po zapełnieniu może dynamicznie zmieniać pojemność taśmy, by dopasować do ciężarówki.
-     * @throws InterruptedException jeśli wątek zostanie przerwany.
-     */
     public void waitForFullBelt() throws InterruptedException {
         synchronized (lock) {
             while (!isFull) {
@@ -152,11 +128,11 @@ public class ConveyorBelt {
                 );
             });
             Thread.sleep(3000);
-            // symulacja oczekiwania ciężarówki przed rozładunkiem
-            isFull = false;// reset flagi po rozpoczęciu rozładunku
+            //symulacja oczekiwania ciężarówki przed rozładunkiem
+            isFull = false;//reset flagi po rozpoczęciu rozładunku
 
-            // jeśli taśma jest wystarczająco mała
-                if (currentCount == countMax) { // zapełniła się przez liczbę cegieł
+            //jeśli taśma jest wystarczająco mała
+                if (currentCount == countMax) { //zapełniła się przez liczbę cegieł
                     int weightToRelease = currentWeight;
                     if (weightToRelease > 0 ) {
                         weightSemaphore.release(weightToRelease);
@@ -165,7 +141,7 @@ public class ConveyorBelt {
                     if (countToRelease > 0) {
                         countSemaphore.release(countToRelease);
                     }
-                } else if (currentWeight == weightMax) { // zapełniła się przez masę
+                } else if (currentWeight == weightMax) { //zapełniła się przez masę
                     int weightToRelease = weightMax;
                     if (weightToRelease > 0) {
                         weightSemaphore.release(weightToRelease);
@@ -175,7 +151,7 @@ public class ConveyorBelt {
                         countSemaphore.release(countToRelease);
                     }
                 }
-
+                //tutaj modyfikuje maksymalne parametry tasmy ze wzgledu na ciezarowke
             if (Truck.getSize() - sendWeight < weightMax) {
                 neweightMax = Truck.getSize() - sendWeight;
                 if(weightSemaphore.availablePermits() != 0) {
@@ -184,35 +160,22 @@ public class ConveyorBelt {
                 weightMax = neweightMax;
 
             }
-
             currentCount = 0;
-
-
-            lock.notifyAll();
+            lock.notifyAll(); //informuje ciezarowke
         }
     }
 
-
-    /**
-     * Zwraca kopię listy cegieł na taśmie (synchronizowana).
-     * @return Lista mas cegieł.
-     */
+    //zwracam kopie listy ceigeil
     public synchronized List<Integer> getBricksSnapshot() {
         return new ArrayList<>(bricks);
     }
 
-    /**
-     * Pobiera cegły z taśmy do załadunku na ciężarówkę.
-     * Usuwa je z taśmy i aktualizuje bieżącą masę.
-     * @param maxLoad Maksymalna masa do załadowania.
-     * @return Lista cegieł do załadowania.
-     */
     public synchronized List<Integer> takeBricksForTruck(int maxLoad) {
         List<Integer> toLoad = new ArrayList<>();
         int total = 0;
         Iterator<Integer> iterator = bricks.iterator();
 
-        // Zdejmuj cegły z taśmy, aż osiągniesz maxLoad
+        //Zdejmuj cegły z taśmy, aż osiągniesz maxLoad
         while (iterator.hasNext()) {
             int brick = iterator.next();
             if (total + brick <= maxLoad) {
@@ -223,10 +186,9 @@ public class ConveyorBelt {
                 break;
             }
         }
-        // Aktualizuj bieżącą masę taśmy
+        //aktualizuj bieżącą masę taśmy
         currentWeight -= total;
-
-        // Aktualizuj UI na wątku JavaFX
+        //aktualizuj UI na wątku JavaFX
         Platform.runLater(() -> {
             brickCountProperty.set(currentCount);
             brickWeightProperty.set(currentWeight);
@@ -237,19 +199,13 @@ public class ConveyorBelt {
         return toLoad;
     }
 
-    /**
-     * Resetuje stan taśmy do wartości początkowych.
-     * Czyści kolejkę, resetuje semafory i zmienne.
-     */
     public void reset() {
         synchronized (this) {
-            // Zamiast tworzyć nowe semafory, zwolnij tyle pozwoleń, ile trzeba
+            //zwalniam tyle pozwolen ile potrzebuje
             int countToRelease = countMax - countSemaphore.availablePermits();
             if (countToRelease > 0) countSemaphore.release(countToRelease);
-
             int weightToRelease = weightMax1 - weightSemaphore.availablePermits();
             if (weightToRelease > 0) weightSemaphore.release(weightToRelease);
-
             currentCount = 0;
             currentWeight = 0;
             Platform.runLater(() -> {
@@ -258,7 +214,6 @@ public class ConveyorBelt {
                 countMaxProperty.set(countMax);
                 weightMaxProperty.set(weightMax);
             });
-
             sendWeight = 0;
             bricks.clear();
             weightMax = weightMax1;

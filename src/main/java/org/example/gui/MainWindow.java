@@ -13,11 +13,9 @@ import org.example.config.AppConfig;
 import org.example.config.ConfigLoader;
 import org.example.model.ConveyorBelt;
 import javafx.scene.layout.VBox;
-import org.example.model.Truck;
-import org.example.model.Worker;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+
 
 public class MainWindow extends Application {
     private final Background background = new Background();
@@ -28,9 +26,7 @@ public class MainWindow extends Application {
     private final CountDownLatch uiInitLatch = new CountDownLatch(1);
     private VBox truckBox; // Dodajemy referencję do truckBox jako pole klasy
 
-    /**
-     * Inicjalizuje podstawowe komponenty UI
-     */
+
     private void initializeUI(Stage primaryStage) {
         try {
             // Add background
@@ -87,9 +83,6 @@ public class MainWindow extends Application {
         }
     }
 
-    /**
-     * Inicjalizuje WorkersGui
-     */
     private void initializeWorkersGui() {
         try {
 
@@ -103,9 +96,6 @@ public class MainWindow extends Application {
         }
     }
 
-    /**
-     * Inicjalizuje aktorów (pracowników i ciężarówkę)
-     */
     private void initializeActors() {
         try {
             AppConfig config = ConfigLoader.loadConfig();
@@ -122,9 +112,6 @@ public class MainWindow extends Application {
         }
     }
 
-    /**
-     * Uruchamia wątki pracowników i ciężarówki
-     */
     private void startThreads() {
         // Uruchamiamy z opóźnieniem, aby zapewnić że UI jest w pełni gotowe
         Platform.runLater(() -> {
@@ -146,9 +133,6 @@ public class MainWindow extends Application {
         });
     }
 
-    /**
-     * Creates the info box with conveyor belt status
-     */
     private VBox createInfoBox() {
         // Create UI labels
         Label constantLabel = new Label("Stan Taśmy");
@@ -191,9 +175,6 @@ public class MainWindow extends Application {
         return infoBox;
     }
 
-    /**
-     * Creates the truck info box
-     */
     public VBox createTruckBox() {
         Label constantLabel = new Label("Stan Ciężarówki");
         constantLabel.getStyleClass().add("title-label");
@@ -228,9 +209,6 @@ public class MainWindow extends Application {
         return truckBox;
     }
 
-    /**
-     * Set up listeners for worker notification events
-     */
     private void setupWorkerListeners() {
         // Ensure we have a valid WorkersGui
         if (workersGui == null) {
